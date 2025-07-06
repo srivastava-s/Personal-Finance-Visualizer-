@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { ITransaction } from '@/types'
+import { useToast } from '@/hooks/use-toast'
 
 // Form validation schema
 const transactionSchema = z.object({
@@ -25,27 +26,25 @@ const transactionSchema = z.object({
 
 type TransactionFormData = z.infer<typeof transactionSchema>
 
+interface Category {
+  _id: string
+  name: string
+  type: 'income' | 'expense'
+  color: string
+  icon: string
+}
+
 interface TransactionFormProps {
   transaction?: ITransaction | null
-  onSubmit: (data: TransactionFormData) => void
+  onSubmit: (data: Omit<TransactionFormData, 'amount'> & { amount: number }) => void
   onCancel: () => void
 }
 
-// Mock categories for now - in a real app, these would come from the database
-const mockCategories = [
-  { _id: '1', name: 'Salary', type: 'income', color: '#10b981' },
-  { _id: '2', name: 'Freelance', type: 'income', color: '#3b82f6' },
-  { _id: '3', name: 'Food & Dining', type: 'expense', color: '#ef4444' },
-  { _id: '4', name: 'Transportation', type: 'expense', color: '#06b6d4' },
-  { _id: '5', name: 'Shopping', type: 'expense', color: '#ec4899' },
-  { _id: '6', name: 'Entertainment', type: 'expense', color: '#f97316' },
-  { _id: '7', name: 'Utilities', type: 'expense', color: '#6366f1' },
-  { _id: '8', name: 'Healthcare', type: 'expense', color: '#8b5cf6' }
-]
-
 export default function TransactionForm({ transaction, onSubmit, onCancel }: TransactionFormProps) {
-  const [selectedType, setSelectedType] = useState<'income' | 'expense'>('expense')
-  const [filteredCategories, setFilteredCategories] = useState(mockCategories)
+  const [categories, setCategories] = useState<Category[]>([])
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
 
   const {
     register,
@@ -66,21 +65,48 @@ export default function TransactionForm({ transaction, onSubmit, onCancel }: Tra
     }
   })
 
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/categories')
+        const result = await response.json()
+        
+        if (result.success) {
+          setCategories(result.data)
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to fetch categories",
+            variant: "destructive"
+          })
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch categories",
+          variant: "destructive"
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCategories()
+  }, [toast])
+
   // Filter categories based on selected type
   useEffect(() => {
     const type = watch('type')
-    setSelectedType(type)
-    setFilteredCategories(mockCategories.filter(cat => cat.type === type))
-  }, [watch('type')])
-
-  // Set default category when type changes
-  useEffect(() => {
-    const type = watch('type')
-    const availableCategories = mockCategories.filter(cat => cat.type === type)
-    if (availableCategories.length > 0 && !watch('categoryId')) {
-      setValue('categoryId', availableCategories[0]._id)
+    const filtered = categories.filter(cat => cat.type === type)
+    setFilteredCategories(filtered)
+    
+    // Set default category when type changes
+    if (filtered.length > 0 && !watch('categoryId')) {
+      setValue('categoryId', filtered[0]._id)
     }
-  }, [watch('type'), setValue, watch('categoryId')])
+  }, [watch('type'), categories, setValue, watch('categoryId')])
 
   const handleFormSubmit = (data: TransactionFormData) => {
     onSubmit({
@@ -92,6 +118,25 @@ export default function TransactionForm({ transaction, onSubmit, onCancel }: Tra
   const handleCancel = () => {
     reset()
     onCancel()
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -158,13 +203,21 @@ export default function TransactionForm({ transaction, onSubmit, onCancel }: Tra
           <SelectContent>
             {filteredCategories.map((category) => (
               <SelectItem key={category._id} value={category._id}>
-                {category.name}
+                <div className="flex items-center space-x-2">
+                  <span>{category.icon}</span>
+                  <span>{category.name}</span>
+                </div>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         {errors.categoryId && (
           <p className="text-sm text-red-600">{errors.categoryId.message}</p>
+        )}
+        {filteredCategories.length === 0 && (
+          <p className="text-sm text-amber-600">
+            No categories available for {watch('type')} type. Please create some categories first.
+          </p>
         )}
       </div>
 
@@ -200,7 +253,7 @@ export default function TransactionForm({ transaction, onSubmit, onCancel }: Tra
         <Button type="button" variant="outline" onClick={handleCancel}>
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting || filteredCategories.length === 0}>
           {isSubmitting ? 'Saving...' : transaction ? 'Update Transaction' : 'Add Transaction'}
         </Button>
       </div>

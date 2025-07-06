@@ -3,11 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Home, CreditCard, BarChart3, Settings } from 'lucide-react'
+import { Home, CreditCard, BarChart3, Settings, Tag, Target, TrendingUp } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Transactions', href: '/transactions', icon: CreditCard },
+  { name: 'Categories', href: '/categories', icon: Tag },
+  { name: 'Budgets', href: '/budgets', icon: Target },
+  { name: 'Insights', href: '/insights', icon: TrendingUp },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]

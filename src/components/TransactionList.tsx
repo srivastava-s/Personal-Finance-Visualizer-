@@ -1,12 +1,21 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Edit, Trash2, TrendingUp, TrendingDown } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ITransaction } from '@/types'
+import { useToast } from '@/hooks/use-toast'
+
+interface Category {
+  _id: string
+  name: string
+  type: 'income' | 'expense'
+  color: string
+  icon: string
+}
 
 interface TransactionListProps {
   transactions: ITransaction[]
@@ -23,18 +32,40 @@ export default function TransactionList({
 }: TransactionListProps) {
   const [sortField, setSortField] = useState<'date' | 'amount' | 'description'>('date')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+  const { toast } = useToast()
 
-  // Mock categories for display
-  const mockCategories = {
-    '1': { name: 'Salary', color: '#10b981' },
-    '2': { name: 'Freelance', color: '#3b82f6' },
-    '3': { name: 'Food & Dining', color: '#ef4444' },
-    '4': { name: 'Transportation', color: '#06b6d4' },
-    '5': { name: 'Shopping', color: '#ec4899' },
-    '6': { name: 'Entertainment', color: '#f97316' },
-    '7': { name: 'Utilities', color: '#6366f1' },
-    '8': { name: 'Healthcare', color: '#8b5cf6' }
-  }
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true)
+        const response = await fetch('/api/categories')
+        const result = await response.json()
+        
+        if (result.success) {
+          setCategories(result.data)
+        } else {
+          toast({
+            title: "Error",
+            description: result.error || "Failed to fetch categories",
+            variant: "destructive"
+          })
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch categories",
+          variant: "destructive"
+        })
+      } finally {
+        setCategoriesLoading(false)
+      }
+    }
+
+    fetchCategories()
+  }, [toast])
 
   const handleSort = (field: 'date' | 'amount' | 'description') => {
     if (sortField === field) {
@@ -73,7 +104,11 @@ export default function TransactionList({
     }
   })
 
-  if (loading) {
+  const getCategoryById = (categoryId: string) => {
+    return categories.find(cat => cat._id === categoryId)
+  }
+
+  if (loading || categoriesLoading) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 5 }).map((_, i) => (
@@ -153,7 +188,7 @@ export default function TransactionList({
       {/* Transaction Items */}
       <div className="space-y-2">
         {sortedTransactions.map((transaction) => {
-          const category = mockCategories[transaction.categoryId as keyof typeof mockCategories]
+          const category = getCategoryById(transaction.categoryId)
           
           return (
             <Card key={transaction._id} className="hover:shadow-md transition-shadow">
@@ -190,13 +225,18 @@ export default function TransactionList({
 
                   {/* Category */}
                   <div className="col-span-2">
-                    {category && (
-                      <span
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                        style={{ backgroundColor: `${category.color}20`, color: category.color }}
-                      >
-                        {category.name}
-                      </span>
+                    {category ? (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg">{category.icon}</span>
+                        <span
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                          style={{ backgroundColor: `${category.color}20`, color: category.color }}
+                        >
+                          {category.name}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Unknown Category</span>
                     )}
                   </div>
 
@@ -210,17 +250,16 @@ export default function TransactionList({
                   {/* Actions */}
                   <div className="col-span-2 flex justify-end space-x-2">
                     <Button
-                      variant="outline"
                       size="sm"
+                      variant="ghost"
                       onClick={() => onEdit(transaction)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="outline"
                       size="sm"
+                      variant="ghost"
                       onClick={() => onDelete(transaction._id)}
-                      className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

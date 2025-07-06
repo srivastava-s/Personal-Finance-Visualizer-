@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown, DollarSign, CreditCard } from 'lucide-react';
 import { summaryApi } from '../utils/api';
 import { FinancialSummary, Transaction } from '../types';
 import { formatCurrency, formatDate } from '../utils/formatters';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 const Dashboard: React.FC = () => {
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
