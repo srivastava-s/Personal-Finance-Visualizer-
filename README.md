@@ -37,7 +37,7 @@ A modern, full-stack web application for tracking and visualizing personal finan
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/srivastava-s/Personal-Finance-Visualizer-
    cd personal-finance-visualizer
    ```
 
