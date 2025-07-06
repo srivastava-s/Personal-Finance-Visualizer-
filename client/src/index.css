@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-white text-gray-700 border-gray-300 hover:bg-gray-50 focus:ring-primary-500;
+  }
+  
+  .btn-success {
+    @apply btn bg-success-600 text-white hover:bg-success-700 focus:ring-success-500;
+  }
+  
+  .btn-danger {
+    @apply btn bg-danger-600 text-white hover:bg-danger-700 focus:ring-danger-500;
+  }
+  
+  .input {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+  }
+  
+  .card {
+    @apply bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200;
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200 bg-gray-50;
+  }
+  
+  .card-body {
+    @apply px-6 py-4;
+  }
+  
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-income {
+    @apply badge bg-success-100 text-success-800;
+  }
+  
+  .badge-expense {
+    @apply badge bg-danger-100 text-danger-800;
+  }
+  
+  .stat-card {
+    @apply card p-6;
+  }
+  
+  .stat-value {
+    @apply text-2xl font-bold text-gray-900;
+  }
+  
+  .stat-label {
+    @apply text-sm font-medium text-gray-500;
+  }
+  
+  .stat-change {
+    @apply text-sm;
+  }
+  
+  .stat-change-positive {
+    @apply stat-change text-success-600;
+  }
+  
+  .stat-change-negative {
+    @apply stat-change text-danger-600;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Chart.js custom styles */
+.chart-container {
+  position: relative;
+  height: 400px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 300px;
+  }
+}
+
+/* Loading animation */
+.loading-spinner {
+  @apply animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600;
+}
+
+/* Fade in animation for charts */
+.chart-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Responsive table */
+.table-responsive {
+  @apply overflow-x-auto;
+}
+
+.table-responsive table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+/* Transaction list item hover effect */
+.transaction-item {
+  @apply transition-colors duration-150 ease-in-out;
+}
+
+.transaction-item:hover {
+  @apply bg-gray-50;
+}
+
+/* Form validation styles */
+.input-error {
+  @apply border-danger-300 focus:border-danger-500 focus:ring-danger-500;
+}
+
+.error-message {
+  @apply text-sm text-danger-600 mt-1;
+}
+
+/* Success message styles */
+.success-message {
+  @apply text-sm text-success-600 mt-1;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.modal-content {
+  @apply bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto;
+}
+
+/* Date picker custom styles */
+.date-picker {
+  @apply input;
+}
+
+/* Category color indicator */
+.category-color {
+  @apply w-4 h-4 rounded-full inline-block mr-2;
+}
+
+/* Amount formatting */
+.amount-positive {
+  @apply text-success-600 font-semibold;
+}
+
+.amount-negative {
+  @apply text-danger-600 font-semibold;
+}
+
+/* Navigation active state */
+.nav-active {
+  @apply bg-primary-100 text-primary-700 border-primary-500;
+}
+
+/* Sidebar styles */
+.sidebar {
+  @apply fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out;
+}
+
+.sidebar-open {
+  @apply translate-x-0;
+}
+
+.sidebar-closed {
+  @apply -translate-x-full;
+}
+
+/* Mobile menu button */
+.mobile-menu-button {
+  @apply lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
+} 
